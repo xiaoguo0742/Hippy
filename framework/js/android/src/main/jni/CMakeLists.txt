@@ -18,7 +18,7 @@ set(ABI_COMPILE_OPTIONS
         -fvisibility-inlines-hidden
         -std=c++14
         --param=ssp-buffer-size=4
-#        -Werror
+        -Werror
         -fno-exceptions
         -fno-strict-aliasing
 #        -Wall
