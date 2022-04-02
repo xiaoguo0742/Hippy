@@ -55,7 +55,6 @@ devtools/devtools-backend/libs/*
 devtools/devtools-backend/test/build/*
 devtools/devtools-backend/android/devtools-backend/*
 
-
 # android
 *.iml
 local.properties
