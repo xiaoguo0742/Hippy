@@ -37,7 +37,8 @@ EXTERN_C void InitBridge();
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
-                                    int32_t engine_id, int32_t callback_id);
+                                    int32_t engine_id, int32_t callback_id, const char16_t* char_data_dir,
+                                    const char16_t* char_ws_url);
 
 EXTERN_C int32_t RunScriptFromFileFFI(int32_t engine_id, const char16_t* file_path, const char16_t* script_name,
                                       const char16_t* code_cache_dir, int32_t can_use_code_cache, int32_t callback_id);
@@ -56,7 +57,14 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
 
 EXTERN_C const char* GetCrashMessageFFI();
 
-EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id);
+EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id, int32_t is_reload);
+
+EXTERN_C void NotifyRequestWillBeSent(int32_t engine_id, const char16_t* request_id, const char16_t* request_content);
+
+EXTERN_C void NotifyResponseReceived(int32_t engine_id, const char16_t* request_id, const char16_t* response_content, const char16_t* body_data);
+
+EXTERN_C void NotifyLoadingFinished(int32_t engine_id, const char16_t* request_id, const char16_t* loading_finish);
+
 #ifdef __cplusplus
 }
 #endif

@@ -70,6 +70,15 @@ class _BridgeFFIManager {
   // 销毁
   late DestroyFfiDartType destroy;
 
+  // network notification, when network requestWillBeSent
+  late NotifyRequestWillBeSentFfiDartType notifyRequestWillBeSent;
+
+  // network notification, when network responseReceived
+  late NotifyResponseReceivedFfiDartType notifyResponseReceived;
+
+  // network notification, when network loadingFinished
+  late NotifyLoadingFinishedFfiDartType notifyLoadingFinished;
+
   // 向c侧注册dart方法
   late RegisterCallNativeFfiDartType registerCallNative;
   late RegisterReportJsonFfiDartType registerReportJson;
@@ -100,6 +109,15 @@ class _BridgeFFIManager {
 
     runScriptFromFile = _library.lookupFunction<RunScriptFromFileFfiNativeType,
         RunScriptFromFileFfiDartType>("RunScriptFromFileFFI");
+
+    notifyRequestWillBeSent = _library.lookupFunction<NotifyRequestWillBeSentFfiNativeType,
+        NotifyRequestWillBeSentFfiDartType>("NotifyRequestWillBeSent");
+
+    notifyResponseReceived = _library.lookupFunction<NotifyResponseReceivedFfiNativeType,
+        NotifyResponseReceivedFfiDartType>("NotifyResponseReceived");
+
+    notifyLoadingFinished = _library.lookupFunction<NotifyLoadingFinishedFfiNativeType,
+        NotifyLoadingFinishedFfiDartType>("NotifyLoadingFinished");
 
     createInstance = _library
         .lookupFunction<CreateInstanceFfiNativeType, CreateInstanceFfiDartType>('CreateInstanceFFI');
@@ -153,7 +171,9 @@ class VoltronApi {
       bool isDevModule,
       int groupId,
       int engineId,
-      CommonCallback callback) async {
+      CommonCallback callback,
+      String dataDir,
+      String wsUrl) async {
     var globalConfigPtr = globalConfig.toNativeUtf16();
     globalConfig.toNativeUtf16();
     var result = _BridgeFFIManager.instance.initJsFramework(
@@ -164,7 +184,8 @@ class VoltronApi {
         groupId,
         engineId, generateCallback((value) {
       callback(value);
-    }));
+    }), dataDir.toNativeUtf16(),
+        wsUrl.toNativeUtf16());
     free(globalConfigPtr);
     return result;
   }
@@ -211,6 +232,31 @@ class VoltronApi {
     free(scriptNamePtr);
     free(codeCacheDirPtr);
     return result == 1;
+  }
+
+  static void notifyRequestWillBeSent(int engineId, String requestId, String requestContent) {
+    var requestContentPtr = requestContent.toNativeUtf16();
+    var requestIdPtr = requestId.toNativeUtf16();
+    _BridgeFFIManager.instance.notifyRequestWillBeSent(engineId, requestIdPtr, requestContentPtr);
+    free(requestContentPtr);
+    free(requestIdPtr);
+  }
+
+  static void notifyResponseReceived(int engineId, String requestId, String responseContent, String bodyData) {
+    var responseContentPtr = responseContent.toNativeUtf16();
+    var requestIdPtr = requestId.toNativeUtf16();
+    var bodyDataPtr = bodyData.toNativeUtf16();
+    _BridgeFFIManager.instance.notifyResponseReceived(engineId, requestIdPtr, responseContentPtr, bodyDataPtr);
+    free(requestIdPtr);
+    free(responseContentPtr);
+    free(bodyDataPtr);
+  }
+
+  static void notifyLoadingFinished(int engineId, String requestId, String loadingFinishContent) {
+    var loadingFinishContentPtr = loadingFinishContent.toNativeUtf16();
+    var requestIdPtr = requestId.toNativeUtf16();
+    _BridgeFFIManager.instance.notifyLoadingFinished(engineId, requestIdPtr, loadingFinishContentPtr);
+    free(loadingFinishContentPtr);
   }
 
   static Future<dynamic> runScriptFromAssetWithData(
@@ -343,11 +389,11 @@ class VoltronApi {
   }
 
   static Future<dynamic> destroy(
-      int engineId, CommonCallback callback) async {
+      int engineId, CommonCallback callback, bool isReload) async {
     _BridgeFFIManager.instance.destroy(engineId,
         generateCallback((value) {
       callback(value);
-    }));
+    }), isReload ? 1 : 0);
   }
 
 // ------------------ dart call native方法 end ---------------------
@@ -392,6 +438,7 @@ class VoltronApi {
         Pointer.fromFunction<DestroyFunctionNativeType>(onDestroy);
     _BridgeFFIManager.instance
         .registerDestroy(LoaderFuncType.destroy.index + kRenderFuncTypeSize, onDestroyFunc);
+
   }
 }
 

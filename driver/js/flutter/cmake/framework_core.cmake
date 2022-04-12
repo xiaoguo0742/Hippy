@@ -1,5 +1,6 @@
 set(FRAMEWORK_CORE_DIR ${FRAMEWORK_DIR}/js/core)
 set(FRAMEWORK_CORE_SRC_DIR ${FRAMEWORK_CORE_DIR}/src)
+set(DEVTOOLS_DIR ${FRAMEWORK_DIR}/../devtools/devtools-backend)
 
 set(FRAMEWORK_CORE_SRC_FILES
         ${FRAMEWORK_CORE_SRC_DIR}/base/file.cc
@@ -46,3 +47,18 @@ set(FRAMEWORK_CORE_DEPS tdf_base tdf_base_common)
 include_directories(${FRAMEWORK_CORE_DIR}/include)
 include_directories(${FRAMEWORK_CORE_DIR}/third_party/base/include)
 
+if (ENABLE_INSPECTOR STREQUAL "true")
+  add_definitions(-DENABLE_INSPECTOR)
+  include_directories(${DEVTOOLS_DIR}/include)
+  include_directories(${DEVTOOLS_DIR}/third_party/nlohmann)
+  set(FRAMEWORK_CORE_SRC_FILES ${FRAMEWORK_CORE_SRC_FILES}
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/devtool_data_source.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/devtool_utils.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/trace_control.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_dom_tree_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_elements_request_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_runtime_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_screen_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_tracing_adapter.cc
+          ${FRAMEWORK_CORE_SRC_DIR}/devtools/adapter/impl/hippy_v8_request_adapter.cc)
+endif ()

@@ -25,6 +25,7 @@ import 'package:voltron_renderer/voltron_renderer.dart';
 
 import '../adapter.dart';
 import '../channel.dart';
+import '../devtools/network_inspector.dart';
 import '../engine.dart';
 import 'module.dart';
 import 'promise.dart';
@@ -40,13 +41,17 @@ class NetworkModule extends VoltronNativeModule {
   static const String kSetCookieMethodName = "setCookie";
   static const String kGetCookieMethodName = "getCookie";
 
+  NetworkInspector networkInspector = NetworkInspector();
   /// 发送请求前的钩子函数
   TRequestWillBeSentHook? requestWillBeSentHook;
 
   /// 请求成功响应的钩子函数
   TResponseReceivedHook? responseReceivedHook;
 
-  NetworkModule(EngineContext context) : super(context);
+  NetworkModule(EngineContext context) : super(context) {
+    responseReceivedHook = networkInspector.onResponseReceived;
+    requestWillBeSentHook = networkInspector.onRequestWillBeSent;
+  }
 
   @VoltronMethod(kFetchMethodName)
   bool fetch(final VoltronMap request, final JSPromise promise) {

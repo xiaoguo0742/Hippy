@@ -28,7 +28,7 @@ enum LoaderFuncType {
   reportJsException,
   sendResponse,
   sendNotification,
-  destroy
+  destroy,
 }
 
 typedef InitBridgeFfiNativeType = Void Function();
@@ -41,7 +41,9 @@ typedef InitJsFrameworkFfiNativeType = Int64 Function(
     Int32 isDevModule,
     Int64 groupId,
     Int32 engineId,
-    Int32 callbackId);
+    Int32 callbackId,
+    Pointer<Utf16> dataDir,
+    Pointer<Utf16> wsUrl);
 typedef InitJsFrameworkFfiDartType = int Function(
     Pointer<Utf16> globalConfig,
     int singleThreadMode,
@@ -49,7 +51,9 @@ typedef InitJsFrameworkFfiDartType = int Function(
     int isDevModule,
     int groupId,
     int engineId,
-    int callbackId);
+    int callbackId,
+    Pointer<Utf16> dataDir,
+    Pointer<Utf16> wsUrl);
 
 typedef CreateInstanceFfiNativeType = Int64 Function(
     Int32 engineId,
@@ -93,6 +97,21 @@ typedef RunScriptFromFileFfiDartType = int Function(
     int canUseCodeCache,
     int callbackId);
 
+typedef NotifyRequestWillBeSentFfiNativeType =
+    Void Function(Int32 engineId, Pointer<Utf16> requestId, Pointer<Utf16> requestContent);
+typedef NotifyRequestWillBeSentFfiDartType =
+    void Function(int engineId, Pointer<Utf16> requestId, Pointer<Utf16> requestContent);
+
+typedef NotifyResponseReceivedFfiNativeType = Void Function(
+    Int32 engineId, Pointer<Utf16> requestId, Pointer<Utf16> responseContent, Pointer<Utf16> bodyData);
+typedef NotifyResponseReceivedFfiDartType = void Function(
+    int engineId, Pointer<Utf16> requestId, Pointer<Utf16> responseContent, Pointer<Utf16> bodyData);
+
+typedef NotifyLoadingFinishedFfiNativeType = Void Function(
+    Int32 engineId, Pointer<Utf16> requestId, Pointer<Utf16> loaddingFinish);
+typedef NotifyLoadingFinishedFfiDartType = void Function(
+    int engineId, Pointer<Utf16> requestId, Pointer<Utf16> loaddingFinish);
+
 typedef RunScriptFromAssetsFfiNativeType = Int32 Function(
     Int32 engineId,
     Pointer<Utf16> assetName,
@@ -131,9 +150,9 @@ typedef CallNativeEventFfiDartType = void Function(int engineId, int rootId,
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
 typedef DestroyFfiNativeType = Void Function(
-    Int32 engineId, Int32 callbackId);
+    Int32 engineId, Int32 callbackId, Int32 isReload);
 typedef DestroyFfiDartType = void Function(
-    int engineId, int callbackId);
+    int engineId, int callbackId, int isReload);
 
 typedef RegisterCallbackFfiNativeType = Int32 Function(
     Int32 type, Pointer<NativeFunction<GlobalCallbackNativeType>> func);
@@ -169,8 +188,6 @@ typedef RegisterDestroyFfiNativeType = Int32 Function(
     Int32 type, Pointer<NativeFunction<DestroyFunctionNativeType>> func);
 typedef RegisterDestroyFfiDartType = int Function(
     int type, Pointer<NativeFunction<DestroyFunctionNativeType>> func);
-
-
 
 enum FuncType {
   callNative,

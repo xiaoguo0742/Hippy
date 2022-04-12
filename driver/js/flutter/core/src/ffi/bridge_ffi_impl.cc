@@ -22,6 +22,7 @@
 
 #include <memory>
 
+#include "core/base/string_view_utils.h"
 #include "dom/dom_manager.h"
 #include "ffi/bridge_ffi_impl.h"
 #include "ffi/ffi_bridge_runtime.h"
@@ -62,6 +63,10 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
     if (runtime && dom_manager) {
       auto runtime_id = runtime->GetRuntimeId();
       BridgeImpl::BindDomManager(runtime_id, dom_manager);
+#if ENABLE_INSPECTOR
+      auto scope = BridgeImpl::GetScope(runtime_id);
+      scope->GetDevtoolsDataSource()->Bind(runtime_id, dom_manager->GetId(), 0);
+#endif
     }
     dom_manager->StartTaskRunner();
     std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
@@ -90,13 +95,14 @@ EXTERN_C void InitBridge() {
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
-                                    int32_t engine_id, int32_t callback_id) {
+                                    int32_t engine_id, int32_t callback_id, const char16_t* char_data_dir,
+                                    const char16_t* char_ws_url) {
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
   BridgeManager::Create(engine_id, ffi_runtime);
 
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
                                          global_config, 0, 0,
-                                         [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+                                         [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, char_data_dir, char_ws_url);
   ffi_runtime->SetRuntimeId(result);
 
   return result;
@@ -160,16 +166,78 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
 
 EXTERN_C const char* GetCrashMessageFFI() { return "lucas_crash_report_test"; }
 
-EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id) {
+EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id, int32_t is_reload) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
     BridgeManager::Destroy(engine_id);
     if (runtime) {
       auto runtime_id = runtime->GetRuntimeId();
-      BridgeImpl::Destroy(runtime_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+      BridgeImpl::Destroy(runtime_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, is_reload);
     }
   }
+}
+
+EXTERN_C void NotifyRequestWillBeSent(int32_t engine_id, const char16_t* request_id, const char16_t* request_content) {
+  TDF_BASE_DLOG(INFO) << "NetworkRequestWillBeSent, request_id " << request_id;
+#if ENABLE_INSPECTOR
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (bridge_manager) {
+    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
+    if (runtime) {
+      // change char16_t* to std::string
+      std::string request_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(request_id));
+      std::string content_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(request_content));
+
+      auto scope = BridgeImpl::GetScope(runtime->GetRuntimeId());
+      auto notification_center = scope->GetDevtoolsDataSource()->GetNotificationCenter();
+      notification_center->GetNetworkNotification()->RequestWillBeSent(request_string, tdf::devtools::DevtoolsHttpRequest(content_string));
+    }
+  }
+#endif
+}
+
+EXTERN_C void NotifyResponseReceived(int32_t engine_id, const char16_t* request_id, const char16_t* response_content, const char16_t* body_data) {
+  TDF_BASE_DLOG(INFO) << "NetworkResponseReceived, request_id " << request_id;
+#if ENABLE_INSPECTOR
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (bridge_manager) {
+    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
+    if (runtime) {
+      // change char16_t* to std::string
+      std::string request_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(request_id));
+      std::string content_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(response_content));
+
+      // create response request body
+      tdf::devtools::DevtoolsHttpResponse response = tdf::devtools::DevtoolsHttpResponse(content_string);
+      unicode_string_view body_data_string_view = unicode_string_view(body_data);
+      response.SetBodyData(hippy::base::StringViewUtils::ToU8StdStr(body_data_string_view));
+
+      auto scope = BridgeImpl::GetScope(runtime->GetRuntimeId());
+      auto notification_center = scope->GetDevtoolsDataSource()->GetNotificationCenter();
+      notification_center->GetNetworkNotification()->ResponseReceived(request_string, response);
+    }
+  }
+#endif
+}
+
+EXTERN_C void NotifyLoadingFinished(int32_t engine_id, const char16_t* request_id, const char16_t* loading_finish) {
+  TDF_BASE_DLOG(INFO) << "NetworkLoadingFinished, request_id " << request_id;
+#if ENABLE_INSPECTOR
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (bridge_manager) {
+    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
+    if (runtime) {
+      // change char16_t* to std::string
+      std::string request_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(request_id));
+      std::string content_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(loading_finish));
+
+      auto scope = BridgeImpl::GetScope(runtime->GetRuntimeId());
+      auto notification_center = scope->GetDevtoolsDataSource()->GetNotificationCenter();
+      notification_center->GetNetworkNotification()->LoadingFinished(request_string, tdf::devtools::DevtoolsLoadingFinished(content_string));
+    }
+  }
+#endif
 }
 
 #ifdef __cplusplus

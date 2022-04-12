@@ -30,11 +30,12 @@ namespace hippy::devtools {
  */
 class NetworkAdapter {
  public:
+  using ResponseCallback = std::function<void(const std::string&)>;
   /**
    * Get the packet body of the network request
    * @param request_id network request id
    */
-  virtual std::string GetResponseBody(std::string request_id) = 0;
+  virtual void GetResponseBody(std::string request_id, ResponseCallback callback) = 0;
 
   virtual ~NetworkAdapter() {}
 };

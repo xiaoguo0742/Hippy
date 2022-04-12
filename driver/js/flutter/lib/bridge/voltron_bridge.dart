@@ -121,7 +121,8 @@ class VoltronBridgeManager implements Destroyable {
           callback(_isFrameWorkInit, null);
           bridgeMap[_engineId] = this;
         }
-      });
+      }, await _context.devSupportManager?.getTracingDataDir() ?? "",
+      _context.devSupportManager?.getDebugUrl() ?? "");
       _sendDebugInfo({'v8RuntimeId': _v8RuntimeId});
       _isBridgeInit = true;
     } catch (e) {
@@ -270,7 +271,7 @@ class VoltronBridgeManager implements Destroyable {
     sBridgeNum--;
     _voltronBuffer.release();
     bridgeMap.remove(_engineId);
-    await VoltronApi.destroy(_engineId, (value) {});
+    await VoltronApi.destroy(_engineId, (value) {}, false);
     _context.renderContext.destroy();
   }
 
