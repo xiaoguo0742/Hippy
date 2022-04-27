@@ -21,7 +21,7 @@ set(ABI_COMPILE_OPTIONS
         -Werror
         -fno-exceptions
         -fno-strict-aliasing
-#        -Wall
+        -Wall
         -Wextra
         -Wextra-semi
         -Wconversion
