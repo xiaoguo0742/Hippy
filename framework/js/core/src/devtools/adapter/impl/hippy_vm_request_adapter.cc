@@ -18,21 +18,20 @@
  * limitations under the License.
  */
 
-#pragma once
-
+#include "devtools/adapter/hippy_vm_request_adapter.h"
 #include <string>
-#include "api/adapter/devtools_vm_request_adapter.h"
 
 namespace hippy {
 namespace devtools {
-class HippyV8RequestAdapter : public hippy::devtools::VMRequestAdapter {
- public:
-  using V8RequestHandler = std::function<void(std::string)>;
-  explicit HippyV8RequestAdapter(V8RequestHandler request_handler);
-  void SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) override;
+HippyVMRequestAdapter::HippyVMRequestAdapter(VMRequestHandler request_handler) : request_handler_(request_handler) {}
 
- private:
-  V8RequestHandler request_handler_;
-};
+void HippyVMRequestAdapter::SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) {
+  if (request_handler_) {
+    request_handler_(msg);
+  }
+  if (sendFinishCallback) {
+    sendFinishCallback();
+  }
+}
 }  // namespace devtools
 }  // namespace hippy

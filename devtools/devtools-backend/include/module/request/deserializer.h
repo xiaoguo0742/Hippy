@@ -18,21 +18,11 @@
  * limitations under the License.
  */
 
-#include "devtools/adapter/hippy_v8_request_adapter.h"
-#include <string>
+#pragma once
 
-namespace hippy {
-namespace devtools {
-HippyV8RequestAdapter::HippyV8RequestAdapter(V8RequestHandler request_handler) : request_handler_(request_handler) {}
-
-void HippyV8RequestAdapter::SendMsgToVM(std::string msg, SendFinishCallback sendFinishCallback) {
-  if (request_handler_) {
-    request_handler_(msg);
-  }
-  if (sendFinishCallback) {
-    sendFinishCallback();
-  }
-}
-
-}  // namespace devtools
-}  // namespace hippy
+namespace hippy::devtools {
+class Deserializer {
+ public:
+  virtual void Deserialize(const std::string& params) = 0;
+};
+}  // namespace hippy::devtoolsB

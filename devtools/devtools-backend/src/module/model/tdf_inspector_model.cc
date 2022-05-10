@@ -25,12 +25,8 @@
 namespace hippy::devtools {
 
 std::string TDFInspectorModel::GetRenderTree(const std::string& render_tree) {  /* NOLINT */
-  std::string result_string;
-  std::stringstream sstream;
-  sstream << "{\"" << kFrontendKeyRtree << "\":";
-  sstream >> result_string;
-  result_string += render_tree + "}";
-  return result_string;
+  std::string result;
+  result = result + "{\"" + kFrontendKeyRtree + "\":" + render_tree + "}";
+  return result;
 }
-
 }  // namespace hippy::devtools

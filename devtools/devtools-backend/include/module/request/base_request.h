@@ -18,12 +18,29 @@
  * limitations under the License.
  */
 
-#include "module/request/domain_base_request.h"
-#include "devtools_base/logging.h"
-#include "module/inspect_props.h"
+#pragma once
+
+#include <string>
+#include "module/request/deserializer.h"
+#include "nlohmann/json.hpp"
 
 namespace hippy::devtools {
 
-void Deserializer::Deserialize(const std::string& params) {}
+/**
+ * @brief Parsing JSON sent from the front end_ Request data of type string
+ */
+class BaseRequest : public Deserializer {
+ public:
+  /**
+   * parse json string to current member object
+   * @param params json format data
+   */
+  void Deserialize(const std::string& params) override {}
 
+  inline void SetId(int32_t id) { id_ = id; }
+  inline int32_t GetId() const { return id_; }
+
+ private:
+  int32_t id_;
+};
 }  // namespace hippy::devtools
