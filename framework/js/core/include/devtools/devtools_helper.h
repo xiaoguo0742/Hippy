@@ -21,7 +21,7 @@
 #pragma once
 
 #if TDF_SERVICE_ENABLED
-#include "devtools/devtool_data_source.h"
+#include "devtools/devtools_data_source.h"
 #include "api/devtools_backend_service.h"
 
 #define DEVTOOLS_JS_REGISTER_RECEIVE_V8_RESPONSE(result) hippy::devtools::DevtoolDataSource::SendV8Response(result)

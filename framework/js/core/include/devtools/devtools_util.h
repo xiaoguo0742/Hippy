@@ -32,7 +32,7 @@
 
 namespace hippy {
 namespace devtools {
-class DevToolUtils {
+class DevToolsUtil {
  public:
   static hippy::devtools::DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
   static hippy::devtools::DomainMetas GetDomDomainData(const std::shared_ptr<DomNode>& dom_node, uint32_t depth,
