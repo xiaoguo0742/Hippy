@@ -72,7 +72,6 @@ renderer/native/android/src/main/jni/lib/*
 devtools/devtools-backend/lib/*
 devtools/devtools-backend/libs/*
 devtools/devtools-backend/test/build/*
-devtools/devtools-backend/android/devtools-backend/*
 
 # android
 *.iml
