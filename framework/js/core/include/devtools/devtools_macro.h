@@ -18,18 +18,18 @@
  * limitations under the License.
  */
 
-#include "devtools/adapter/hippy_vm_request_adapter.h"
-#include <string>
-#include <utility>
+#pragma once
 
-namespace hippy {
-namespace devtools {
-HippyVmRequestAdapter::HippyVmRequestAdapter(VmRequestHandler request_handler) : request_handler_(std::move(request_handler)) {}
+#if TDF_SERVICE_ENABLED
+#include "devtools/devtools_data_source.h"
 
-void HippyVmRequestAdapter::SendMsgToVm(std::string msg) {
-  if (request_handler_) {
-    request_handler_(msg);
-  }
-}
-}  // namespace devtools
-}  // namespace hippy
+#define DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace_control) \
+  hippy::devtools::DevtoolDataSource::OnGlobalTracingControlGenerate(trace_control)
+
+#define DEVTOOLS_INIT_VM_TRACING_CACHE(trace_dir) \
+  hippy::devtools::DevtoolDataSource::SetFileCacheDir(trace_dir)
+
+#else
+#define DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace_control) void(0)
+#define DEVTOOLS_INIT_VM_TRACING_CACHE(trace_dir) void(0)
+#endif
