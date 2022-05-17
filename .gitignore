@@ -51,7 +51,6 @@ renderer/flutter/core/lib/*
 renderer/native/android/src/main/jni/lib/*
 
 devtools/devtools-backend/lib/*
-devtools/devtools-backend/libs/*
 devtools/devtools-backend/test/build/*
 
 # android
