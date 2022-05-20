@@ -23,12 +23,12 @@
 #include <memory>
 #include <string>
 
+#include "api/devtools_backend_service.h"
+#include "api/devtools_config.h"
 #include "core/engine.h"
 #include "core/task/worker_task_runner.h"
 #include "devtools/adapter/hippy_runtime_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
-#include "api/devtools_config.h"
-#include "api/devtools_backend_service.h"
 
 #ifdef JS_V8
 #include "v8/libplatform/v8-tracing.h"
@@ -38,8 +38,7 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace hippy {
-namespace devtools {
+namespace hippy::devtools {
 
 /**
  * @brief Hippy debug data source, collect debug data by adapter implement and notification
@@ -67,9 +66,8 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
 
   int32_t dom_id_;
   int32_t runtime_id_;
+  uint64_t listener_id_;
   std::shared_ptr<HippyRuntimeAdapter> runtime_adapter_;
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
 };
-}  // namespace devtools
-}  // namespace hippy
-
+}  // namespace hippy::devtools

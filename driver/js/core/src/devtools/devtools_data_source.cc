@@ -28,6 +28,7 @@
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
+#include "devtools_base/common/macros.h"
 #include "dom/dom_manager.h"
 
 #ifdef JS_V8
@@ -36,6 +37,8 @@
 #endif
 
 namespace hippy::devtools {
+
+constexpr char kDomTreeUpdated[] = "DomTreeUpdated";
 
 DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url) {
   hippy::devtools::DevtoolsConfig devtools_config;
@@ -58,10 +61,21 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(dom_id_);
   data_provider->runtime_adapter = runtime_adapter_;
   TDF_BASE_DLOG(INFO) << "DevtoolsDataSource data_provider:%p" << &devtools_service_;
+
+  auto dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  listener_id_ = hippy::dom::FetchListenerId();
+  dom_manager->AddEventListener(
+      dom_manager->GetRootId(), kDomTreeUpdated, listener_id_, true,
+      [DEVTOOLS_WEAK_THIS](std::shared_ptr<DomEvent>& event) {
+        DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+        self->devtools_service_->GetNotificationCenter()->elements_notification->NotifyDocumentUpdate();
+      });
 }
 
 void DevtoolsDataSource::Destroy(bool is_reload) {
   devtools_service_->Destroy(is_reload);
+  auto dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  dom_manager->RemoveEventListener(dom_manager->GetRootId(), kDomTreeUpdated, listener_id_);
 }
 
 void DevtoolsDataSource::SetRuntimeDebugMode(bool debug_mode) {
