@@ -18,21 +18,18 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <string>
-
-#include "api/adapter/devtools_elements_request_adapter.h"
+#include "module/request/dom_push_node_by_path_request.h"
+#include "devtools_base/parse_json_util.h"
 
 namespace hippy::devtools {
-class HippyElementsRequestAdapter : public hippy::devtools::ElementsRequestAdapter {
- public:
-  explicit HippyElementsRequestAdapter(int32_t dom_id) : dom_id_(dom_id) {}
-  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
-  void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) override;
 
- private:
-  int32_t dom_id_;
-};
+constexpr char kParamsNodePath[] = "path";
+
+void DomPushNodeByPathRequest::Deserialize(const std::string& params) {
+  auto params_json = nlohmann::json::parse(params, nullptr, false);
+  if (params_json.is_discarded()) {
+    return;
+  }
+  node_path_ = TdfParseJsonUtil::GetJsonValue(params_json, kParamsNodePath, node_path_);
+}
 }  // namespace hippy::devtools

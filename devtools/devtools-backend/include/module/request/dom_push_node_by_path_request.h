@@ -21,18 +21,16 @@
 #pragma once
 
 #include <string>
-
-#include "api/adapter/devtools_elements_request_adapter.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
-class HippyElementsRequestAdapter : public hippy::devtools::ElementsRequestAdapter {
+class DomPushNodeByPathRequest : public BaseRequest {
  public:
-  explicit HippyElementsRequestAdapter(int32_t dom_id) : dom_id_(dom_id) {}
-  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
-  void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) override;
+  void Deserialize(const std::string& params) override;
+  inline std::string GetNodePath() { return node_path_; }
 
  private:
-  int32_t dom_id_;
+  std::string node_path_;
 };
+
 }  // namespace hippy::devtools
