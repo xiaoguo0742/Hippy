@@ -18,21 +18,30 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <string>
-
-#include "api/adapter/devtools_elements_request_adapter.h"
+#include "api/adapter/data/dom_push_node_path_metas.h"
 
 namespace hippy::devtools {
-class HippyElementsRequestAdapter : public hippy::devtools::ElementsRequestAdapter {
- public:
-  explicit HippyElementsRequestAdapter(int32_t dom_id) : dom_id_(dom_id) {}
-  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
-  void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) override;
 
- private:
-  int32_t dom_id_;
-};
+constexpr char kHitNodeId[] = "hitNodeId";
+
+std::string DomPushNodePathMetas::Serialize() const {
+  std::string node_str;
+  node_str += "{";
+  node_str += "\"";
+  node_str += kHitNodeId;
+  node_str += "\":";
+  node_str += std::to_string(hit_node_id_);
+  if (!relation_nodes_.empty()) {
+    node_str += ",\"relationNodes\": [";
+    for (auto& child : relation_nodes_) {
+      node_str += std::to_string(child);
+      node_str += ",";
+    }
+    node_str = node_str.substr(0, node_str.length() - 1);  // remove last ","
+    node_str += "]";
+  }
+  node_str += "}";
+  return node_str;
+}
+
 }  // namespace hippy::devtools

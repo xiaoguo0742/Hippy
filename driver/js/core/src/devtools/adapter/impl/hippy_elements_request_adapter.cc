@@ -54,4 +54,17 @@ void HippyElementsRequestAdapter::GetNodeIdByLocation(double x, double y, NodeLo
   };
   DevToolsUtil::PostDomTask(dom_id_, func);
 }
+
+void HippyElementsRequestAdapter::GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) {
+  if (!callback) {
+    return;
+  }
+  auto func = [dom_id = dom_id_, path, callback]() {
+    std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id));
+    auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
+    callback(DevToolsUtil::GetPushNodeByPath(root_node, path));
+  };
+  DevToolsUtil::PostDomTask(dom_id_, func);
+}
+
 }  // namespace hippy::devtools

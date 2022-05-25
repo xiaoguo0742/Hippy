@@ -20,8 +20,11 @@
 
 #pragma once
 
+#include <map>
 #include <string>
+#include <vector>
 #include "api/adapter/data/dom_node_location.h"
+#include "api/adapter/data/dom_push_node_path_metas.h"
 #include "api/adapter/data/domain_metas.h"
 
 namespace hippy::devtools {
@@ -33,6 +36,8 @@ class ElementsRequestAdapter {
  public:
   using DomainDataCallback = std::function<void(const DomainMetas& data)>;
   using NodeLocationCallback = std::function<void(const DomNodeLocation& data)>;
+  using PushNodePath = std::vector<std::map<std::string, int32_t>>;
+  using PushNodeByPathCallback = std::function<void(const DomPushNodePathMetas& data)>;
 
   /**
    * Get the n-tier child node data of the node
@@ -52,6 +57,13 @@ class ElementsRequestAdapter {
    * @param callback finish callback
    */
   virtual void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) = 0;
+
+  /**
+   *  Get push node by path
+   *  @see https://chromedevtools.github.io/devtools-protocol/tot/DOM/#method-pushNodeByPathToFrontend
+   *  @param path node path
+   */
+  virtual void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) = 0;
 
   virtual ~ElementsRequestAdapter() {}
 };
