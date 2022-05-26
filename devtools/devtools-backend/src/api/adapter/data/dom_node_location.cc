@@ -18,10 +18,13 @@
  * limitations under the License.
  */
 
+#include "devtools_base/convert/nlohmann_converter.h"
 #include "api/adapter/data/dom_node_location.h"
+#include "devtools_base/dom_value.h"
 
 namespace hippy::devtools {
 constexpr char kNodeId[] = "nodeId";
+constexpr char kHitNodeRelationTree[] = "hitNodeRelationTree";
 
 std::string DomNodeLocation::Serialize() const {
   std::string node_str;
@@ -40,6 +43,15 @@ std::string DomNodeLocation::Serialize() const {
     node_str += "]";
   }
   node_str += "}";
-  return node_str;
+
+  hippy::devtools::DomValue::DomValueObjectType root_object;
+  root_object[kNodeId] = hippy::devtools::DomValue(std::to_string(node_id_));
+  hippy::devtools::DomValue::DomValueArrayType relation_ids;
+  for (auto& child : relation_tree_ids_) {
+    relation_ids.push_back(hippy::devtools::DomValue(std::to_string(child)));
+  }
+  root_object[kHitNodeRelationTree] = hippy::devtools::DomValue(relation_ids);
+  hippy::devtools::DataConverter* dataConverter = DataConverter::DefaultConverter();
+  return dataConverter->ConvertToString(hippy::devtools::DomValue(root_object));
 }
 }  // namespace hippy::devtools

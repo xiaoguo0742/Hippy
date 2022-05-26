@@ -18,13 +18,8 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include "devtools_base/convert/data_converter.h"
+#include "devtools_base/convert/nlohmann_converter.h"
 
 namespace hippy::devtools {
-class NlohmannConverter : public DataConverter {
- public:
-  std::string ConvertToString(const DomValue& dom_value) override;
-};
+std::string NlohmannConverter::ConvertToString(const DomValue& dom_value) { return ""; }
 }  // namespace hippy::devtools
