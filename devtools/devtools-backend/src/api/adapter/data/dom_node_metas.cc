@@ -19,6 +19,9 @@
  */
 
 #include "api/adapter/data/dom_node_metas.h"
+#include <devtools_base/convert/data_converter.h>
+#include <devtools_base/logging.h>
+#include "devtools_base/dom_value.h"
 #include "devtools_base/transform_string_util.h"
 #include "module/inspect_props.h"
 
@@ -29,73 +32,47 @@ constexpr char kAttributes[] = "attributes";
 constexpr char kBgColor[] = "bgColor";
 constexpr char kText[] = "text";
 constexpr char kBase64[] = "base64";
+constexpr char kId[] = "id";
 constexpr char kDomRelativeRenderId[] = "domRelativeRenderId";
+constexpr char kBounds[] = "bounds";
+constexpr char kDomNodeLeft[] = "left";
+constexpr char kDomNodeRight[] = "right";
+constexpr char kDomNodeTop[] = "top";
+constexpr char kDomNodeBottom[] = "bottom";
+constexpr char kDomNodeChild[] = "child";
+
+hippy::devtools::DomValue::DomValueObjectType DomNodeMetas::ToDomValue() const {
+  DomValue::DomValueObjectType root_object;
+  root_object[kId] = DomValue(std::to_string(node_id_));
+  root_object[kNodeType] = DomValue(node_type_);
+  root_object[kAttributes] = DataConverter::DefaultConverter()->ConvertFromString(total_props_);
+  root_object[kFlexNodeStyle] =
+      DataConverter::DefaultConverter()->ConvertFromString(TransformStringUtil::CombineNodeDefaultValue(style_props_));
+  root_object[kWidth] = DomValue(std::to_string(static_cast<int>(width_)));
+  root_object[kHeight] = DomValue(std::to_string(static_cast<int>(height_)));
+  root_object[kDomRelativeRenderId] = DomValue(0);
+  root_object[kBgColor] = DomValue(0);
+  root_object[kBorderColor] = DomValue(0);
+  root_object[kText] = DomValue("");
+  root_object[kBase64] = DomValue("");
+
+  DomValue::DomValueObjectType bounds_object;
+  bounds_object[kDomNodeLeft] = DomValue(std::to_string(static_cast<int>(bound_.left)));
+  bounds_object[kDomNodeRight] = DomValue(std::to_string(static_cast<int>(bound_.right)));
+  bounds_object[kDomNodeTop] = DomValue(std::to_string(static_cast<int>(bound_.top)));
+  bounds_object[kDomNodeBottom] = DomValue(std::to_string(static_cast<int>(bound_.bottom)));
+  root_object[kBounds] = bounds_object;
+
+  DomValue::DomValueArrayType child_array;
+  for (auto& child : children_) {
+    child_array.push_back(DomValue(child.ToDomValue()));
+  }
+  root_object[kDomNodeChild] = DomValue(child_array);
+  return root_object;
+}
 
 std::string DomNodeMetas::Serialize() const {
-  std::string node_str;
-  node_str += "{\"id\":";
-  node_str += std::to_string(node_id_);
-  node_str += ",\"";
-  node_str += kNodeType;
-  node_str += "\":\"";
-  node_str += node_type_;
-  node_str += "\",\"";
-  node_str += kFlexNodeStyle;
-  node_str += "\":";
-  node_str += TransformStringUtil::CombineNodeDefaultValue(style_props_);
-  node_str += ",\"";
-  node_str += kAttributes;
-  node_str += "\":";
-  node_str += total_props_;
-  node_str += ",\"";
-  node_str += kWidth;
-  node_str += "\":";
-  node_str += std::to_string(static_cast<int>(width_));
-  node_str += ",\"";
-  node_str += kHeight;
-  node_str += "\":";
-  node_str += std::to_string(static_cast<int>(height_));
-  node_str += ",\"";
-  node_str += kDomRelativeRenderId;
-  node_str += "\":";
-  node_str += "0";
-  node_str += ",\"";
-  node_str += kBgColor;
-  node_str += "\":";
-  node_str += "0";
-  node_str += ",\"";
-  node_str += kBorderColor;
-  node_str += "\":";
-  node_str += "0";
-  node_str += ",\"";
-  node_str += kText;
-  node_str += "\":";
-  node_str += "\"\"";
-  node_str += ",\"";
-  node_str += kBase64;
-  node_str += "\":";
-  node_str += "\"\"";
-  node_str += ",";
-  node_str += "\"bounds\": {";
-  node_str += "\"bottom\":";
-  node_str += std::to_string(static_cast<int>(bound_.bottom));
-  node_str += ",\"left\":";
-  node_str += std::to_string(static_cast<int>(bound_.left));
-  node_str += ",\"right\":";
-  node_str += std::to_string(static_cast<int>(bound_.right));
-  node_str += ",\"top\":";
-  node_str += std::to_string(static_cast<int>(bound_.top));
-  node_str += "}";
-  if (!children_.empty()) {
-    node_str += ",\"child\": [";
-    for (auto& child : children_) {
-      node_str += child.Serialize();
-      node_str += ",";
-    }
-    node_str = node_str.substr(0, node_str.length() - 1);  // remove last ","
-    node_str += "]";
-  }
-  node_str += "}";
+  std::string node_str = DataConverter::DefaultConverter()->ConvertToString(DomValue(ToDomValue()));
   return node_str;
 }
 }  // namespace hippy::devtools

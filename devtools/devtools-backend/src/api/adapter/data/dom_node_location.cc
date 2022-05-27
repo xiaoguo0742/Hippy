@@ -51,7 +51,7 @@ std::string DomNodeLocation::Serialize() const {
     relation_ids.push_back(hippy::devtools::DomValue(std::to_string(child)));
   }
   root_object[kHitNodeRelationTree] = hippy::devtools::DomValue(relation_ids);
-  hippy::devtools::DataConverter* dataConverter = DataConverter::DefaultConverter();
-  return dataConverter->ConvertToString(hippy::devtools::DomValue(root_object));
+
+  return DataConverter::DefaultConverter()->ConvertToString(hippy::devtools::DomValue(root_object));
 }
 }  // namespace hippy::devtools

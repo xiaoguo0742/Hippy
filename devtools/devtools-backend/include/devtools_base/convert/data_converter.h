@@ -27,6 +27,7 @@ namespace hippy::devtools {
 class DataConverter {
  public:
   virtual std::string ConvertToString(const DomValue& dom_value) = 0;
+  virtual DomValue ConvertFromString(const std::string& content) = 0;
 
   static DataConverter* DefaultConverter();
 };

@@ -113,9 +113,9 @@ DomPushNodePathMetas DevToolsUtil::GetPushNodeByPath(const std::shared_ptr<DomNo
       continue;
     }
     temp_node = child_node;
-    metas.AddRelationNodeId(child_node->GetId());
+    metas.AddRelationNodeId(static_cast<int32_t>(child_node->GetId()));
   }
-  metas.SetHitNodeId(temp_node->GetId());
+  metas.SetHitNodeId(static_cast<int32_t>(temp_node->GetId()));
   return metas;
 }
 

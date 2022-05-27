@@ -21,10 +21,15 @@
 #pragma once
 
 #include "devtools_base/convert/data_converter.h"
+#include "nlohmann/json.hpp"
 
 namespace hippy::devtools {
 class NlohmannConverter : public DataConverter {
  public:
   std::string ConvertToString(const DomValue& dom_value) override;
+  DomValue ConvertFromString(const std::string& content) override;
+ private:
+  nlohmann::json ConvertToJson(const DomValue& dom_value);
+  DomValue ConvertFromJson(const nlohmann::json& json);
 };
 }  // namespace hippy::devtools

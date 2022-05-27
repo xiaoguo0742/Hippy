@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include "api/adapter/data/serializable.h"
+#include "devtools_base/dom_value.h"
 
 namespace hippy::devtools {
 
@@ -46,6 +47,7 @@ class DomNodeMetas : public Serializable {
   std::string Serialize() const override;
 
  private:
+  hippy::devtools::DomValue::DomValueObjectType ToDomValue() const;
   uint32_t node_id_;
   std::string node_type_;
   std::string total_props_;

@@ -249,7 +249,7 @@ void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
   auto path_string = request.GetNodePath();
   auto path_vector = TdfStringUtil::SplitString(path_string, ",");
   PushNodePath node_path;
-  for (int32_t index = 0; index < path_vector.size() - 1; index += 2) {
+  for (std::size_t index = 0; index < path_vector.size() - 1; index += 2) {
     std::string child_index = path_vector[index];
     std::string tag_name = path_vector[index + 1];
     std::map<std::string, int32_t> node_tag_name_id_map;
@@ -259,7 +259,7 @@ void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
   dom_push_node_by_path_call_back_(node_path, [DEVTOOLS_WEAK_THIS, request](int32_t hit_node_id,
                                                                             std::vector<int32_t> relation_nodes) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
-    auto temp_relation_nodes = relation_nodes;
+    auto temp_relation_nodes = std::move(relation_nodes);
     std::vector<int32_t> no_need_replenish_nodes;
     for (int32_t node_id : temp_relation_nodes) {
       if (self->element_node_children_count_cache_.find(node_id) == self->element_node_children_count_cache_.end()) {
