@@ -111,7 +111,7 @@ nlohmann::json NlohmannConverter::ConvertToJson(const DomValue& dom_value) {
       } else if (array_item.IsInt32()) {
         array.push_back(array_item.ToInt32Checked());
       } else if (array_item.IsUInt32()) {
-        array.push_back(array_item.IsUInt32());
+        array.push_back(array_item.ToUint32Checked());
       } else if (array_item.IsDouble()) {
         array.push_back(array_item.ToDoubleChecked());
       } else if (array_item.IsString()) {

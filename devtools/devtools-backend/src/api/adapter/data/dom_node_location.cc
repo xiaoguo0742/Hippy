@@ -45,10 +45,10 @@ std::string DomNodeLocation::Serialize() const {
   node_str += "}";
 
   hippy::devtools::DomValue::DomValueObjectType root_object;
-  root_object[kNodeId] = hippy::devtools::DomValue(std::to_string(node_id_));
+  root_object[kNodeId] = hippy::devtools::DomValue(node_id_);
   hippy::devtools::DomValue::DomValueArrayType relation_ids;
   for (auto& child : relation_tree_ids_) {
-    relation_ids.push_back(hippy::devtools::DomValue(std::to_string(child)));
+    relation_ids.push_back(hippy::devtools::DomValue(child));
   }
   root_object[kHitNodeRelationTree] = hippy::devtools::DomValue(relation_ids);
 
