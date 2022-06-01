@@ -30,7 +30,7 @@
 
 #include <websocketpp/config/core_client.hpp>
 #include <websocketpp/transport/asio/endpoint.hpp>
-//#include <websocketpp/transport/asio/security/tls.hpp>
+#include <websocketpp/transport/asio/security/tls.hpp>
 
 // Pull in non-tls config
 #include <websocketpp/config/asio_no_tls_client.hpp>
@@ -64,7 +64,7 @@ struct asio_tls_client : public core_client {
         typedef type::elog_type elog_type;
         typedef type::request_type request_type;
         typedef type::response_type response_type;
-//        typedef websocketpp::transport::asio::tls_socket::endpoint socket_type;
+        typedef websocketpp::transport::asio::tls_socket::endpoint socket_type;
     };
 
     typedef websocketpp::transport::asio::endpoint<transport_config>

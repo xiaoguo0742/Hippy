@@ -71,6 +71,10 @@ void WebSocketChannel::Connect(ReceiveDataHandler handler) {
         DEVTOOLS_DEFINE_AND_CHECK_SELF(WebSocketChannel)
         self->HandleSocketConnectMessage(handle, message_ptr);
       });
+    wss_client_.set_tls_init_handler([](const websocketpp::connection_hdl& handle) -> websocketpp::lib::shared_ptr<websocketpp::lib::asio::ssl::context> {
+        auto ctx = websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::sslv23);
+        return ctx;
+    });
 
   ws_thread_ = websocketpp::lib::make_shared<websocketpp::lib::thread>(&WSClient::run, &ws_client_);
   StartConnect(ws_uri_);

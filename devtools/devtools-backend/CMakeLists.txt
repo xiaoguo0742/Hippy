@@ -35,7 +35,8 @@ include_directories(${BACKEND_INCLUDE_DIR} ${THIRD_PARTY_INCLUDE})
 
 set(WEBSOCKETPP_PATH ${DEVTOOLS_ROOT_PATH}/third_party/websocketpp)
 set(ASIO_PATH ${DEVTOOLS_ROOT_PATH}/third_party/asio/include)
-include_directories(${WEBSOCKETPP_PATH} ${ASIO_PATH})
+set(OPENSSL_PATH ${DEVTOOLS_ROOT_PATH}/third_party/openssl/include)
+include_directories(${WEBSOCKETPP_PATH} ${ASIO_PATH} ${OPENSSL_PATH})
 
 # add library
 file(GLOB_RECURSE DEVTOOLS_SRC
@@ -48,6 +49,8 @@ add_definitions("-DASIO_NO_TYPEID")
 # asio noexception
 add_definitions("-DASIO_NO_EXCEPTIONS=1")
 
+add_definitions("-DASIO_DISABLE_ALIGNOF")
+
 # JSON noexception
 add_definitions("-DJSON_NOEXCEPTION")
 
@@ -56,6 +59,7 @@ add_definitions("-D_WEBSOCKETPP_NO_EXCEPTIONS_")
 
 if(IOS)
   add_definitions("-DOS_IOS")
+  link_directories(${DEVTOOLS_ROOT_PATH}/third_party/openssl/lib/)
 endif()
 
 if(ANDROID OR IOS)

@@ -37,6 +37,7 @@
 #pragma clang diagnostic pop
 
 using WSClient = websocketpp::client<websocketpp::config::asio_client>;
+using WSSSLClient = websocketpp::client<websocketpp::config::asio_tls_client>;
 using WSMessagePtr = websocketpp::config::asio_tls_client::message_type::ptr;
 using WSThread = websocketpp::lib::shared_ptr<websocketpp::lib::thread>;
 
@@ -60,6 +61,7 @@ class WebSocketChannel : public hippy::devtools::NetChannel, public std::enable_
   void HandleSocketConnectClose(const websocketpp::connection_hdl& handle);
 
   WSClient ws_client_;
+  WSSSLClient wss_client_;
   websocketpp::connection_hdl connection_hdl_;
   std::string ws_uri_;
   ReceiveDataHandler data_handler_;
