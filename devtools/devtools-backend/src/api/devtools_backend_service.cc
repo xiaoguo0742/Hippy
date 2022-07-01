@@ -22,18 +22,19 @@
 #include "api/notification/default/default_network_notification.h"
 #include "api/notification/default/default_runtime_notification.h"
 #include "api/notification/default/default_vm_response_notification.h"
+#include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "module/domain_dispatch.h"
 #include "tunnel/tunnel_service.h"
 
 namespace hippy::devtools {
-DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_config) {
+DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_config, std::shared_ptr<footstone::WorkerManager> worker_manager) {
   BACKEND_LOGI(TDF_BACKEND, "DevtoolsBackendService create framework:%d,tunnel:%d", devtools_config.framework,
                devtools_config.tunnel);
   auto data_provider = std::make_shared<DataProvider>();
   auto notification_center = std::make_shared<NotificationCenter>();
   data_channel_ = std::make_shared<DataChannel>(data_provider, notification_center);
-  domain_dispatch_ = std::make_shared<DomainDispatch>(data_channel_);
+  domain_dispatch_ = std::make_shared<DomainDispatch>(data_channel_, worker_manager);
   domain_dispatch_->RegisterDefaultDomainListener();
   tunnel_service_ = std::make_shared<TunnelService>(domain_dispatch_, devtools_config);
   tunnel_service_->Connect();

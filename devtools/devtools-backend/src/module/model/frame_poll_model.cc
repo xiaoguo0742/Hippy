@@ -21,14 +21,15 @@
 #include "module/model/frame_poll_model.h"
 #include "api/devtools_backend_service.h"
 #include "devtools_base/common/macros.h"
-#include "devtools_base/common/worker_pool.h"
 #include "devtools_base/logging.h"
+#include "footstone/time_delta.h"
 
 namespace hippy::devtools {
 constexpr int32_t kRefreshIntervalMilliSeconds = 2000;
+constexpr char kTaskRunnerNameFramePoll[] = "frame_poll";
 
 void FramePollModel::InitTask() {
-  refresh_task_runner_ = WorkerPool::GetInstance(1)->CreateTaskRunner();
+  refresh_task_runner_ = worker_manager_->CreateTaskRunner(kTaskRunnerNameFramePoll);
   refresh_task_ = [DEVTOOLS_WEAK_THIS]() {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(FramePollModel)
     std::lock_guard<std::recursive_mutex> lock(self->mutex_);
@@ -43,7 +44,7 @@ void FramePollModel::InitTask() {
     }
     self->refresh_task_runner_->Clear();
     self->refresh_task_runner_->PostDelayedTask(self->refresh_task_,
-                                                TimeDelta::FromMilliseconds(kRefreshIntervalMilliSeconds));
+                                                footstone::TimeDelta::FromMilliseconds(kRefreshIntervalMilliSeconds));
   };
 }
 
@@ -95,6 +96,6 @@ void FramePollModel::RemoveFrameCallback() {
 
 FramePollModel::~FramePollModel() {
   RemoveFrameCallback();
-  WorkerPool::GetInstance(1)->RemoveTaskRunner(refresh_task_runner_);
+  worker_manager_->RemoveTaskRunner(refresh_task_runner_);
 }
 }  // namespace hippy::devtools
